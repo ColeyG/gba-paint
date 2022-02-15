@@ -6,6 +6,10 @@ void place(volatile unsigned short vram[], int x, int y, int color)
   vram[y * 240 + x] = color;
 }
 
+void initialize()
+{
+}
+
 int main(void)
 {
   // Write into the I/O registers, setting video display parameters.
@@ -19,20 +23,22 @@ int main(void)
   vram[80 * 240 + 120] = 0x03E0; // X = 120, Y = 80, C = 000001111100000 = G
   vram[80 * 240 + 125] = 0x7C00; // X = 125, Y = 80, C = 111110000000000 = B
 
-  // place(vram, 10, 10);
-  // place(vram, 11, 10);
-  // place(vram, 12, 10);
-  // place(vram, 13, 10);
-
   srand(time(NULL));
-  // place(vram, rand() % 240, rand() % 160);
+
+  int col1 = 0x001F;
+  int col2 = 0x03E0;
+  int col3 = 0x7C00;
 
   // Wait forever
   while (1)
   {
-    // place(vram, rand() % 240, rand() % 160, 0x001F);
-    // place(vram, rand() % 240, rand() % 160, 0x03E0);
-    // place(vram, rand() % 240, rand() % 160, 0x7C00);
+    place(vram, rand() % 240, rand() % 160, col1);
+    place(vram, rand() % 240, rand() % 160, col2);
+    place(vram, rand() % 240, rand() % 160, col3);
+
+    col1++;
+    col2++;
+    col3++;
   }
 
   return 0;
