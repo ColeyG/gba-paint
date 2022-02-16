@@ -12,13 +12,13 @@
 #define KEY_SELECT 0x0004
 #define KEY_START 0x0008
 
-#define KEY_RIGHT 0x0050
-#define KEY_LEFT 0x0060
-#define KEY_UP 0x0070
+#define KEY_RIGHT 0x0010
+#define KEY_LEFT 0x0020
+#define KEY_UP 0x0040
 #define KEY_DOWN 0x0080
 
-// #define KEY_R 0x0100
-// #define KEY_L 0x0100
+#define KEY_R 0x0100
+#define KEY_L 0x0200
 
 #define KEY_ANY 0x03FF
 
@@ -56,9 +56,9 @@ void update(volatile unsigned short vram[], int keyStates)
     y++;
   }
 
-  if (x > 240)
+  if (x > 239)
   {
-    x = 240;
+    x = 239;
   }
 
   if (x < 0)
@@ -66,9 +66,9 @@ void update(volatile unsigned short vram[], int keyStates)
     x = 0;
   }
 
-  if (y > 160)
+  if (y > 159)
   {
-    y = 160;
+    y = 159;
   }
 
   if (y < 0)
@@ -78,7 +78,7 @@ void update(volatile unsigned short vram[], int keyStates)
 
   place(vram, x, y, colour);
 
-  // colour++;
+  colour++;
 }
 
 int main(void)
