@@ -25,9 +25,11 @@
 typedef unsigned int uint32;
 
 // Gross Globals Area
-int x = 10;
-int y = 10;
-int colour = 0x001F;
+int cursorX = 10;
+int cursorY = 10;
+int color = 0x001F;
+const int startingDebounce = 1000;
+int debounce = startingDebounce;
 
 void place(volatile unsigned short vram[], int x, int y, int color)
 {
@@ -36,49 +38,63 @@ void place(volatile unsigned short vram[], int x, int y, int color)
 
 void update(volatile unsigned short vram[], int keyStates)
 {
-  if (keyStates & KEY_LEFT)
+  if (debounce == 0)
   {
-    x--;
+    if (keyStates & KEY_LEFT)
+    {
+      debounce = startingDebounce;
+      cursorX--;
+      color++;
+    }
+
+    if (keyStates & KEY_RIGHT)
+    {
+      debounce = startingDebounce;
+      cursorX++;
+      color++;
+    }
+
+    if (keyStates & KEY_UP)
+    {
+      debounce = startingDebounce;
+      cursorY--;
+      color++;
+    }
+
+    if (keyStates & KEY_DOWN)
+    {
+      debounce = startingDebounce;
+      cursorY++;
+      color++;
+    }
   }
 
-  if (keyStates & KEY_RIGHT)
+  if (cursorX > 239)
   {
-    x++;
+    cursorX = 239;
   }
 
-  if (keyStates & KEY_UP)
+  if (cursorX < 0)
   {
-    y--;
+    cursorX = 0;
   }
 
-  if (keyStates & KEY_DOWN)
+  if (cursorY > 159)
   {
-    y++;
+    cursorY = 159;
   }
 
-  if (x > 239)
+  if (cursorY < 0)
   {
-    x = 239;
+    cursorY = 0;
   }
 
-  if (x < 0)
+  if (debounce != 0)
   {
-    x = 0;
+    debounce--;
   }
 
-  if (y > 159)
-  {
-    y = 159;
-  }
-
-  if (y < 0)
-  {
-    y = 0;
-  }
-
-  place(vram, x, y, colour);
-
-  colour++;
+  place(vram, cursorX, cursorY, color);
 }
 
 int main(void)
@@ -94,7 +110,6 @@ int main(void)
 
   srand(time(NULL));
 
-  // Wait forever
   while (1)
   {
 
