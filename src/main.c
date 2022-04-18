@@ -24,16 +24,53 @@
 
 typedef unsigned int uint32;
 
+// "Image" Arrays
+// TODO: store the UI in one array and the image in another
+// TODO: hover states will be controlled by an in-to-out testing function that checks for entering and leaving certain areas
+int uiColorMap[] = {0x7C00, 0x03E0, 0x7C1F, 0x3879};
+int ui[] = {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3};
+int uiSize = 12;
+int uiWidth = 4;
+
 // Gross Globals Area
-int cursorX = 10;
+int timer = 0;
+const int startingCursorTimer = 100;
+int cursorTimer = startingCursorTimer;
+int cursorX = 100;
 int cursorY = 10;
-int color = 0x001F;
 const int startingDebounce = 1000;
 int debounce = startingDebounce;
+
+// Colors
+int offWhite = 0x7BDE;
+int offBlack = 0x0421;
 
 void place(volatile unsigned short vram[], int x, int y, int color)
 {
   vram[y * 240 + x] = color;
+}
+
+void drawImage(volatile unsigned short vram[], int imageArray[], int imageSize, int colorArray[], int startX, int startY, int width)
+{
+  int i;
+  int rowOffset = 0;
+  int x = startX;
+  int y = startY;
+
+  for (i = 0; i < imageSize; i++)
+  {
+    place(vram, x, y, colorArray[imageArray[i]]);
+
+    x++;
+    rowOffset++;
+
+    if (rowOffset > width - 1)
+    {
+      rowOffset = 0;
+      x = startX;
+      y++;
+    }
+  }
 }
 
 void update(volatile unsigned short vram[], int keyStates)
@@ -44,28 +81,24 @@ void update(volatile unsigned short vram[], int keyStates)
     {
       debounce = startingDebounce;
       cursorX--;
-      color++;
     }
 
     if (keyStates & KEY_RIGHT)
     {
       debounce = startingDebounce;
       cursorX++;
-      color++;
     }
 
     if (keyStates & KEY_UP)
     {
       debounce = startingDebounce;
       cursorY--;
-      color++;
     }
 
     if (keyStates & KEY_DOWN)
     {
       debounce = startingDebounce;
       cursorY++;
-      color++;
     }
   }
 
@@ -94,7 +127,26 @@ void update(volatile unsigned short vram[], int keyStates)
     debounce--;
   }
 
-  place(vram, cursorX, cursorY, color);
+  // Placing the cursor
+  if (cursorTimer == 0)
+  {
+    if (timer % 2)
+    {
+      place(vram, cursorX, cursorY, offBlack);
+    }
+    else
+    {
+      place(vram, cursorX, cursorY, offWhite);
+    }
+
+    cursorTimer = startingCursorTimer;
+  }
+  else
+  {
+    cursorTimer--;
+  }
+
+  timer++;
 }
 
 int main(void)
@@ -109,6 +161,8 @@ int main(void)
   uint32 keyStates = 0;
 
   srand(time(NULL));
+
+  drawImage(vram, ui, uiSize, uiColorMap, 0, 0, uiWidth);
 
   while (1)
   {
