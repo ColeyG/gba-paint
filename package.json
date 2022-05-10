@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A Paint-like program for the GBA. Why? Not sure...",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "image-transfer": "node ops/scripts/image-transfer.js"
   },

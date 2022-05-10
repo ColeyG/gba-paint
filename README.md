@@ -17,3 +17,12 @@ There are a few dependencies that can be installed with the following:
 
 [reinterpretcast writing a gameboy advance game](https://www.reinterpretcast.com/writing-a-game-boy-advance-game)
 [Kyle Halliday GBA By Example](http://kylehalladay.com/blog/tutorial/gba/2017/04/18/GBA-By-Example-4.html)
+
+## Image Storage
+
+Image storage is built of four primary components.
+
+1. The colour map.
+2. The image array.
+3. The image size.
+4. The image width.
