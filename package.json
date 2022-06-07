@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "image-transfer": "node ops/scripts/image-transfer.js"
+    "image-transfer": "node ops/scripts/image-transfer.js",
+    "rgb-to-hex": "node ops/scripts/rgb-to-hex.js"
   },
   "repository": {
     "type": "git",
