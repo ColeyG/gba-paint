@@ -45,32 +45,56 @@ const int startingDebounce = 1000;
 int debounce = startingDebounce;
 
 // Colors
-int offWhite = 0x7BDE;
-int canvasColor = 0x7FBE;
-int offBlack = 0x0421;
-int rred = 0x001F;
+const int offWhite = 0x7BDE;
+const int canvasColor = 0x7FBE;
+const int offBlack = 0x0421;
+const int rred = 0x001F;
+const int uiBg = 0x1C03;
+const int pickerColor = 0x02FF;
 
 // Pico-8 (?)
-int black = 0x0000;
-int darkBlue = 0x28A3;
-int darkPurple = 0x288F;
-int darkGreen = 0x2A00;
-int brown = 0x1955;
-int darkGrey = 0x254B;
-int lightGrey = 0x6318;
-int lightWhite = 0x77DF;
-int red = 0x241F;
-int orange = 0x29F;
-int yellow = 0x13BF;
-int green = 0x1B80;
-int blue = 0x7EA5;
-int lavendar = 0x4DD0;
-int pink = 0x55DF;
-int peach = 0x573F;
+const int black = 0x0000;
+const int darkBlue = 0x28A3;
+const int darkPurple = 0x288F;
+const int darkGreen = 0x2A00;
+const int brown = 0x1955;
+const int darkGrey = 0x254B;
+const int lightGrey = 0x6318;
+const int lightWhite = 0x77DF;
+const int red = 0x241F;
+const int orange = 0x29F;
+const int yellow = 0x13BF;
+const int green = 0x1B80;
+const int blue = 0x7EA5;
+const int lavendar = 0x4DD0;
+const int pink = 0x55DF;
+const int peach = 0x573F;
+
+int paletteSize = 16;
+int colorPalette[] = {
+    offBlack,
+    darkBlue,
+    darkPurple,
+    darkGreen,
+    brown,
+    darkGrey,
+    lightGrey,
+    lightWhite,
+    red,
+    orange,
+    yellow,
+    green,
+    blue,
+    lavendar,
+    pink,
+    peach};
+int currentColor = 0;
 
 void place(volatile unsigned short vram[], int x, int y, int color)
 {
   vram[y * 240 + x] = color;
+
+  // This function should check if the cursor is there and update its bank if it is
 }
 
 /**
@@ -82,6 +106,27 @@ void place(volatile unsigned short vram[], int x, int y, int color)
 #include "functions/drawImage.c"
 #include "functions/drawRectangle.c"
 // #include "functions/drawLine.c" // Something is weird in here. The lines don't draw full length
+
+void selectColor(volatile unsigned short vram[], int color)
+{
+  int lineOffsetX = (currentColor % 8) * 16 + 15;
+  int lineOffsetY = (currentColor / 8) * 19 + 127;
+
+  place(vram, lineOffsetX, lineOffsetY, uiBg);
+  place(vram, lineOffsetX - 2, lineOffsetY, uiBg);
+  place(vram, lineOffsetX + 2, lineOffsetY, uiBg);
+  place(vram, lineOffsetX, lineOffsetY + 1, uiBg);
+
+  currentColor = color;
+
+  lineOffsetX = (currentColor % 8) * 16 + 15;
+  lineOffsetY = (currentColor / 8) * 19 + 127;
+
+  place(vram, lineOffsetX, lineOffsetY, pickerColor);
+  place(vram, lineOffsetX - 2, lineOffsetY, pickerColor);
+  place(vram, lineOffsetX + 2, lineOffsetY, pickerColor);
+  place(vram, lineOffsetX, lineOffsetY + 1, pickerColor);
+}
 
 void update(volatile unsigned short vram[], int keyStates)
 {
@@ -121,6 +166,34 @@ void update(volatile unsigned short vram[], int keyStates)
       debounce = startingDebounce;
       cursorY++;
       place(vram, cursorX, cursorY, rred);
+    }
+
+    if (keyStates & KEY_R)
+    {
+      int newColor = currentColor + 1;
+
+      if (newColor > paletteSize)
+      {
+        newColor = 0;
+      }
+
+      selectColor(vram, newColor);
+
+      debounce = startingDebounce;
+    }
+
+    if (keyStates & KEY_L)
+    {
+      int newColor = currentColor - 1;
+
+      if (newColor < 0)
+      {
+        newColor = paletteSize - 1;
+      }
+
+      selectColor(vram, newColor);
+
+      debounce = startingDebounce;
     }
   }
 
@@ -201,9 +274,10 @@ int main(void)
   srand(time(NULL));
 
   // drawImage(vram, ui, uiSize, uiColorMap, 0, 0, uiWidth);
-  drawRectangle(vram, 5, 5, canvasWidth, canvasHeight, canvasColor);
+  drawRectangle(vram, 5, 5, canvasWidth, canvasHeight, lightWhite);
+  drawRectangle(vram, 0, 110, 239, 50, uiBg);
 
-  drawRectangle(vram, 10, 115, 11, 11, black);
+  drawRectangle(vram, 10, 115, 11, 11, offBlack);
   drawRectangle(vram, 26, 115, 11, 11, darkBlue);
   drawRectangle(vram, 42, 115, 11, 11, darkPurple);
   drawRectangle(vram, 58, 115, 11, 11, darkGreen);
@@ -220,6 +294,11 @@ int main(void)
   drawRectangle(vram, 90, 134, 11, 11, lavendar);
   drawRectangle(vram, 106, 134, 11, 11, pink);
   drawRectangle(vram, 122, 134, 11, 11, peach);
+
+  selectColor(vram, 0);
+  selectColor(vram, 1);
+  selectColor(vram, 2);
+  selectColor(vram, 9);
 
   // Then the core loop...
   while (1)
