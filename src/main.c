@@ -41,8 +41,7 @@ int cursorColorState = 0; // Iterates 0 through to 6
 int cursorX = 3;
 int cursorY = 3;
 int colorUnderCursor = 0x000;
-const int startingDebounce = 1000;
-int debounce = startingDebounce;
+#include "inc/debounces.c"
 
 // Colors
 const int offWhite = 0x7BDE;
@@ -52,43 +51,7 @@ const int rred = 0x001F;
 const int uiBg = 0x1C03;
 const int pickerColor = 0x02FF;
 
-// Pico-8 (?)
-const int black = 0x0000;
-const int darkBlue = 0x28A3;
-const int darkPurple = 0x288F;
-const int darkGreen = 0x2A00;
-const int brown = 0x1955;
-const int darkGrey = 0x254B;
-const int lightGrey = 0x6318;
-const int lightWhite = 0x77DF;
-const int red = 0x241F;
-const int orange = 0x29F;
-const int yellow = 0x13BF;
-const int green = 0x1B80;
-const int blue = 0x7EA5;
-const int lavendar = 0x4DD0;
-const int pink = 0x55DF;
-const int peach = 0x573F;
-
-int paletteSize = 16;
-int colorPalette[] = {
-    offBlack,
-    darkBlue,
-    darkPurple,
-    darkGreen,
-    brown,
-    darkGrey,
-    lightGrey,
-    lightWhite,
-    red,
-    orange,
-    yellow,
-    green,
-    blue,
-    lavendar,
-    pink,
-    peach};
-int currentColor = 0;
+#include "inc/colorPalette.c"
 
 void place(volatile unsigned short vram[], int x, int y, int color)
 {
@@ -130,97 +93,7 @@ void selectColor(volatile unsigned short vram[], int color)
 
 void update(volatile unsigned short vram[], int keyStates)
 {
-  if (debounce == 0)
-  {
-    if (keyStates & KEY_LEFT)
-    {
-      place(vram, cursorX, cursorY, colorUnderCursor);
-      colorUnderCursor = vram[cursorY * 240 + (cursorX - 1)];
-      debounce = startingDebounce;
-      cursorX--;
-      place(vram, cursorX, cursorY, rred);
-    }
-
-    if (keyStates & KEY_RIGHT)
-    {
-      place(vram, cursorX, cursorY, colorUnderCursor);
-      colorUnderCursor = vram[cursorY * 240 + (cursorX + 1)];
-      debounce = startingDebounce;
-      cursorX++;
-      place(vram, cursorX, cursorY, rred);
-    }
-
-    if (keyStates & KEY_UP)
-    {
-      place(vram, cursorX, cursorY, colorUnderCursor);
-      colorUnderCursor = vram[(cursorY - 1) * 240 + cursorX];
-      debounce = startingDebounce;
-      cursorY--;
-      place(vram, cursorX, cursorY, rred);
-    }
-
-    if (keyStates & KEY_DOWN)
-    {
-      place(vram, cursorX, cursorY, colorUnderCursor);
-      colorUnderCursor = vram[(cursorY + 1) * 240 + cursorX];
-      debounce = startingDebounce;
-      cursorY++;
-      place(vram, cursorX, cursorY, rred);
-    }
-
-    if (keyStates & KEY_R)
-    {
-      int newColor = currentColor + 1;
-
-      if (newColor > paletteSize)
-      {
-        newColor = 0;
-      }
-
-      selectColor(vram, newColor);
-
-      debounce = startingDebounce;
-    }
-
-    if (keyStates & KEY_L)
-    {
-      int newColor = currentColor - 1;
-
-      if (newColor < 0)
-      {
-        newColor = paletteSize - 1;
-      }
-
-      selectColor(vram, newColor);
-
-      debounce = startingDebounce;
-    }
-  }
-
-  if (cursorX > 239)
-  {
-    cursorX = 239;
-  }
-
-  if (cursorX < 0)
-  {
-    cursorX = 0;
-  }
-
-  if (cursorY > 159)
-  {
-    cursorY = 159;
-  }
-
-  if (cursorY < 0)
-  {
-    cursorY = 0;
-  }
-
-  if (debounce != 0)
-  {
-    debounce--;
-  }
+#include "inc/controls.c"
 
   // Placing the cursor
   if (cursorStateTimer == 0)
